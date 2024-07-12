@@ -10,8 +10,9 @@ import tensorflow as tf
 from keras import Model
 from keras.layers import Input, Dense, Dropout, LSTM
 
-def load_data():
-    df = pd.read_csv('Gold Price.csv')
+# Function to load and preprocess data
+def load_data(file):
+    df = pd.read_csv(file)
     df.drop(['Vol.', 'Change %'], axis=1, inplace=True)
     df['Date'] = pd.to_datetime(df['Date'])
     df.sort_values(by='Date', ascending=True, inplace=True)
@@ -85,30 +86,32 @@ def main():
     st.title("Gold Price Prediction")
     st.write("This app predicts the price of gold using historical data.")
     
-    df = load_data()
-    st.write("## Data Overview")
-    st.write(df)
-    
-    X_train, y_train, X_test, y_test, scaler, test_size = preprocess_data(df)
-    
-    st.write("## Training the Model")
-    model = define_model(60)
-    history = model.fit(X_train, y_train, epochs=150, batch_size=32, validation_split=0.1, verbose=1)
-    
-    st.write("## Model Evaluation")
-    result = model.evaluate(X_test, y_test)
-    y_pred = model.predict(X_test)
-    MAPE = mean_absolute_percentage_error(y_test, y_pred)
-    Accuracy = 1 - MAPE
-    st.write("Test Loss:", result)
-    st.write("Test MAPE:", MAPE)
-    st.write("Test Accuracy:", Accuracy)
-    
-    y_test_true = scaler.inverse_transform(y_test)
-    y_test_pred = scaler.inverse_transform(y_pred)
-    
-    st.write("## Model Performance on Gold Price Prediction")
-    plot_data(df, test_size, y_test_true, y_test_pred)
-    
+    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+    if uploaded_file is not None:
+        df = load_data(uploaded_file)
+        st.write("## Data Overview")
+        st.write(df)
+        
+        X_train, y_train, X_test, y_test, scaler, test_size = preprocess_data(df)
+        
+        st.write("## Training the Model")
+        model = define_model(60)
+        history = model.fit(X_train, y_train, epochs=150, batch_size=32, validation_split=0.1, verbose=1)
+        
+        st.write("## Model Evaluation")
+        result = model.evaluate(X_test, y_test)
+        y_pred = model.predict(X_test)
+        MAPE = mean_absolute_percentage_error(y_test, y_pred)
+        Accuracy = 1 - MAPE
+        st.write("Test Loss:", result)
+        st.write("Test MAPE:", MAPE)
+        st.write("Test Accuracy:", Accuracy)
+        
+        y_test_true = scaler.inverse_transform(y_test)
+        y_test_pred = scaler.inverse_transform(y_pred)
+        
+        st.write("## Model Performance on Gold Price Prediction")
+        plot_data(df, test_size, y_test_true, y_test_pred)
+        
 if __name__ == "__main__":
     main()
