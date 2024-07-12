@@ -1,7 +1,6 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_percentage_error
 from keras.models import Sequential
@@ -24,13 +23,6 @@ window_size = st.sidebar.slider('Window Size', 10, 120, 60)
 epochs = st.sidebar.slider('Epochs', 10, 200, 150)
 batch_size = st.sidebar.slider('Batch Size', 16, 128, 32)
 
-# Plotting the data
-st.header("Gold Price History Data")
-fig, ax = plt.subplots()
-ax.plot(df.Date, df.Price, color='black')
-ax.set_xlabel('Date')
-ax.set_ylabel('Price')
-st.pyplot(fig)
 
 test_size = df[df.Date.dt.year == test_year].shape[0]
 
@@ -123,12 +115,3 @@ if st.checkbox('Show Model Performance'):
     y_test_pred = scaler.inverse_transform(y_pred)
 
     # Investigating the closeness of the prices predicted by the model to the actual prices
-    plt.figure(figsize=(15, 6), dpi=150)
-    plt.plot(df['Date'].iloc[-test_size:], y_test_true, color='blue', lw=2)
-    plt.plot(df['Date'].iloc[-test_size:], y_test_pred, color='red', lw=2)
-    plt.title('Model Performance on Gold Price Prediction', fontsize=15)
-    plt.xlabel('Date', fontsize=12)
-    plt.ylabel('Price', fontsize=12)
-    plt.legend(['Actual Test Data', 'Predicted Test Data'], loc='upper left', prop={'size': 15})
-    plt.grid(color='white')
-    st.pyplot(plt)
